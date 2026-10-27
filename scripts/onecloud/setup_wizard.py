@@ -71,9 +71,10 @@ def options(state):
 
 def answers_own_name(chosen, ddns):
     """Whether the box answers its own domain on its own hotspot (supervisor.hotspot_names, phone_uplink). On unless
-    the owner turned it off ("own_name_on_hotspot": false, settings page, 2026-10-29); always for Tesla mode and for a
-    deSEC name. The older "local_dns" is not read: older pages saved it false with every car or sound group."""
-    if (ddns or {}).get("provider") == "desec" or chosen.get("tesla"):
+    the owner turned it off ("own_name_on_hotspot": false, settings page, 2026-10-29); always for Tesla mode and for
+    a deSEC or DNSPod name (neither keeps a public record for the box to be found by). The older "local_dns" is not
+    read: older pages saved it false with every car or sound group."""
+    if (ddns or {}).get("provider") in ("desec", "dnspod") or chosen.get("tesla"):
         return True
     return chosen.get("own_name_on_hotspot") is not False
 

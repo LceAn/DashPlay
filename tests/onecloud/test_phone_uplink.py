@@ -54,6 +54,20 @@ class PhoneUplinkTests(unittest.TestCase):
         self.u.tick()
         self.assertEqual(self.u.phase, 'online')
 
+    def test_dnspod_name_stays_local_while_other_names_follow_upstream(self):
+        self.status['tesla'] = False
+        self.status['own_name'] = 'dashplay.apeng.fun'
+        (self.state / 'ddns.json').write_text(json.dumps({
+            'provider': 'dnspod', 'domain': 'dashplay.apeng.fun',
+            'id': '10001', 'token': 'syntheticdnspodtoken1'}))
+        self.boot()
+        self.connected()
+        self.assertEqual(self.p.start_dhcp.call_args.args[2], ['dashplay.apeng.fun'])
+        self.assertIn('upstream_file', self.p.start_dhcp.call_args.kwargs,
+                      'the station path forwards other names through the phone hotspot')
+        self.receiver.assert_called_with(149)
+        self.assertFalse(self.status['tesla_offline'])
+
     def test_boot_on_discovered_channel_starts_receiver_only_once(self):
         self.boot(5805)
         self.receiver.assert_called_once_with(161)
